@@ -1,0 +1,20 @@
+# course config files
+*.yaml
+
+# gradle
+.gradle/
+build
+
+
+# idea config
+.idea
+
+# old stages
+/Smart Calculator with Java/*
+!/Smart Calculator with Java/task/
+/Smart Calculator with Java/task/*
+!/Smart Calculator with Java/task/src
+
+# Project exclude paths
+/Topics/BigInteger/An expression with large numbers/out/
+/Topics/BigInteger/An expression with large numbers/out/production/classes/

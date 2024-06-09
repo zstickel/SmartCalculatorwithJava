@@ -1,0 +1,128 @@
+<h2>Custom annotations and types of annotations</h2>
+<div class="step-text">
+<p>Java annotations provide meta information to <a class="theory-lookup not-relevant" href="/learn/step/12806" rel="noopener noreferrer nofollow" target="_blank" title="In Java, a source code is the human-readable text version of a program written in the Java programming language. | It is typically stored in a file with a .java extension and can be edited using a text editor or an Integrated Development Environment (IDE). The source code is compiled by the Java compiler into bytecode, which is a low-level, platform-independent representation of the program. This bytecode can then be executed by the Java Virtual Machine (JVM) on any platform that has a JVM installed. The source code can also be decompiled back into readable Java code using a decompiler.">source code</a>. You probably have already seen and used some of them – like <code class="language-java">@Override</code> for one.<br/>There are many other predefined annotations, but sometimes they are not enough. Here we will look at how to create your own annotation and how to process it.</p>
+<h5 id="defining-a-new-annotation">Defining a new annotation </h5>
+<p><a class="theory-lookup not-relevant" href="/learn/step/12806" rel="noopener noreferrer nofollow" target="_blank" title="In Java, a custom annotation is a user-defined annotation that provides specific information to the compiler, development tools, frameworks, and libraries at runtime. | Custom annotations can contain elements for which you can provide values. They are used to provide meta information to the source code, similar to built-in annotations. To create a custom annotation, you need to define it in a file, specify its retention policy, and define where it can be placed. Custom annotations can be applied to classes, methods, packages, annotations, and other elements.">Custom annotations</a> have to be defined in <code class="language-java">@interface</code> files. Let's create a special annotation that represents class or method description with its author and version number. First, we define the <code class="language-java">@interface</code>:</p>
+<pre><code class="language-java">public @interface Description {}</code></pre>
+<p>Then there are a few things that can be specified in this class.</p>
+<h5 id="retention-policies">Retention policies</h5>
+<p>The first is annotation <strong>Retention</strong>. It specifies at which level your annotation will be applied. It is specified by <code class="language-java">@Retention</code> annotation on your custom annotation class, like in the following snippet:</p>
+<pre><code class="language-java">@Retention(RetentionPolicy.RUNTIME)
+public @interface Description {}</code></pre>
+<p>There are 3 available retention types in Java:</p>
+<p><strong>SOURCE</strong><br/>These annotations are used by the compiler during the compilation process. For example,  <code class="language-java">@Override</code> annotation has this type of retention:</p>
+<pre><code class="language-java">@Retention(RetentionPolicy.SOURCE)
+public @interface Override { }</code></pre>
+<p><strong>CLASS</strong><br/>It is the default retention. These annotations are recorded in the class file on compilation, but then they are not available during run time. It is basically used to perform byte code modifications. It can be used in code obfuscation or code generation libraries (e.g. Lombok). For example, <code class="language-java">@NotNull</code> annotation has this type of retention:</p>
+<pre><code class="language-java">@Retention(RetentionPolicy.CLASS)
+public @interface NotNull { }</code></pre>
+<p><strong>RUNTIME</strong><br/>Runtime annotations are also recorded in the class file, and then they can be read at run time. The <code class="language-java">@Deprecated</code> annotation and <code class="language-java">@Retention</code> itself has a runtime <a class="theory-lookup not-relevant" href="/learn/step/12806" rel="noopener noreferrer nofollow" target="_blank" title="In Java, a retention policy is a directive that specifies the duration for which an annotation is available in the code. | It determines at what level the annotation will be applied and is specified using the @Retention annotation on a custom annotation class. There are three retention policies available in Java:
+
+1. SOURCE: These annotations are used by the compiler during the compilation process and are then discarded. 2. CLASS: These annotations are recorded in the class file on compilation, but are not available during runtime. They are used for byte code modification, such as code obfuscation or code generation. 3. RUNTIME: These annotations are recorded in the class file and can be read at runtime. They have a runtime retention policy and can be processed manually during program execution. Custom annotations typically have this retention policy.">retention policy</a>. This one is generally used for custom annotations because it is the only policy that can be processed manually during program execution.</p>
+<p>Our custom <code class="language-java">@Description</code> annotation will have it as well (check the construction):</p>
+<pre><code class="language-java">@Retention(RetentionPolicy.RUNTIME)
+public @interface Description {}</code></pre>
+<h5 id="target-types">Target types</h5>
+<p><code class="language-java">@Target</code> tells where the annotation can be placed: methods, packages, annotations themselves, etc. You can look at the table to find out all the available values. If you don't set up its value, the annotation will be applicable to all elements. </p>
+<p>For our annotation we are going to use <strong>METHOD </strong>value: </p>
+<pre><code class="language-java">@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Description {}</code></pre>
+<p>The following table shows all available <a class="theory-lookup not-relevant" href="/learn/step/12806" rel="noopener noreferrer nofollow" target="_blank" title="In Java, a target type is the data type that a value or variable is being assigned or converted to. | This is important in the context of implicit and explicit casting, where the target type can accommodate the source type or not. For example, converting a smaller integer type to a larger integer type is an implicit casting, and it can be done automatically by the compiler. On the other hand, explicit casting is a process where a programmer manually converts a value from one data type to another, even if the target type is narrower than the source type, which can result in loss of data. A target type can also be a generic type, which is a generic class or interface that is parameterized over type. A target type can be a class type, an interface type, or an array type. It is important to note that a variable of a class type can be null, meaning it is not initialized yet, this is a common feature in Java, available for class since they are reference types. In summary, a target type in Java is the data type that a value or variable is being assigned or converted to, it can be a primitive type, a reference type, a generic type, a class type, an interface type or an array type.">target types</a>.</p>
+<table align="center" border="1" cellpadding="1" cellspacing="1" style="width: 550px;"><tbody><tr><td><p></p></td><td><p> </p></td></tr><tr><td><p><code class="language-java">ElementType.ANNOTATION_TYPE</code></p></td><td><p>Annotations</p></td></tr><tr><td><p><code class="language-java">ElementType.CONSTRUCTOR</code></p></td><td><p>Constructors</p></td></tr><tr><td><p><code class="language-java">ElementType.FIELD</code></p></td><td><p>Fields</p></td></tr><tr><td><p><code class="language-java">ElementType.LOCAL_VARIABLE</code></p></td><td><p>Local variables</p></td></tr><tr><td><p><code class="language-java">ElementType.METHOD</code></p></td><td><p>Methods</p></td></tr><tr><td><p><code class="language-java">ElementType.MODULE</code></p></td><td><p>Modules</p></td></tr><tr><td><p><code class="language-java">ElementType.PACKAGE</code></p></td><td><p>Packages</p></td></tr><tr><td><p><code class="language-java">ElementType.PARAMETER</code></p></td><td><p>Parameters</p></td></tr><tr><td><p><code class="language-java">ElementType.RECORD_COMPONENT</code></p></td><td><p>Record components</p></td></tr><tr><td><p><code class="language-java">ElementType.TYPE</code></p></td><td><p>Class, interface, enum, record or annotation</p></td></tr><tr><td><p><code class="language-java">ElementType.TYPE_PARAMETER</code></p></td><td><p><a class="theory-lookup not-relevant" href="/learn/step/12806" rel="noopener noreferrer nofollow" target="_blank" title="In Java, a type parameter is a placeholder for a specific type used in a class or method declaration. | It is defined within angle brackets following the class or method name. Once declared, a type parameter can be used within the class or method body as an ordinary type. The advantage of using type parameters is that they enable you to write more abstract code and develop reusable software libraries. At the time of creating an object of the class or invoking the method, a concrete type is determined for the type parameter.">Type parameter</a> <a class="theory-lookup not-relevant" href="/learn/step/12806" rel="noopener noreferrer nofollow" target="_blank" title="In Java, a declaration is a statement that introduces a variable, method, or class into the program. | It specifies the type of the entity being declared, its name, and other relevant information such as access modifiers, return type (for methods), and initial values (for variables). For example, the declaration of a method may include its name, return type, access modifier, and parameter list. Declarations are essential for Java to understand the structure and behavior of the program. Incorrect declarations can lead to compilation errors. Java 10 introduced type inference, which allows developers to use the var keyword instead of a specific type, and the type is automatically inferred based on the assigned value.">declaration</a></p></td></tr><tr><td><p><code class="language-java">ElementType.TYPE_USE</code></p></td><td><p>Use of a type</p></td></tr></tbody></table>
+<h5 id="annotations-parameters">Annotations parameters</h5>
+<p>Let's add some parameters to our annotation that should specify different parts of our description. These parameters have restrictions on the type:</p>
+<ul><li><p>primitives;</p></li><li><p><code class="language-java">String</code>;</p></li><li><p><code class="language-java">Class</code>;</p></li><li><p><code class="language-java">Enum</code>;</p></li><li><p>annotation;</p></li><li><p>an array of these types.</p></li></ul>
+<p>Beware that the <a class="theory-lookup not-relevant" href="/learn/step/12806" rel="noopener noreferrer nofollow" target="_blank" title="In Java, a default value is a value that is automatically assigned to a variable, field, or array element if no explicit initial value is provided. | For example, an array of a primitive type is initialized with default values. Variables of type boolean are initialized to false, while numeric types are initialized to zero. For object reference types, the default value is null. When creating an object of a class, if no constructor is defined, the compiler automatically provides a default no-argument constructor that initializes all fields with their default values. However, if a specific constructor is defined, the default constructor will not be created.">default value</a> cannot be null. Now we can define our <code class="language-java">@Description</code> annotation parameters: </p>
+<ul><li><p>description of the method itself;</p></li><li><p>author name;</p></li><li><p>version number.</p></li></ul>
+<pre><code class="language-java">@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Description {
+    String author();
+    String description();
+    int version() default 0;
+}</code></pre>
+<h5 id="additional-meta-annotations">Additional meta-annotations</h5>
+<p>The annotation can be marked as <code class="language-java">@Repeatable</code> and then it can be used multiple times at the same place. You should provide a container class name: the class with an array collecting repeatable annotations:</p>
+<pre><code class="language-java">@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Descriptions {
+    Description[] value();
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@Repeatable(Descriptions.class)
+public @interface Description {...}</code></pre>
+<p>Now the annotation can be applied more than one time: </p>
+<pre><code class="language-java">@Description(author = "John Doe", description = "first description")
+@Description(author = "Richard Roe", description = "second description")
+public void testMethod() {</code></pre>
+<p><code class="language-java">@Documented</code> takes no parameters and includes an annotation in the Javadoc documentation.</p>
+<p>If the annotation is marked as <code class="language-java">@Inherited</code>, then it will be applied to all subclasses of the annotated class.</p>
+<h5 id="processing-annotations">Processing annotations</h5>
+<p>Now when we have defined our custom <code class="language-java">@Description</code> annotation, we should also describe its processing. We want it to write the method description, author name, and version number to the console. </p>
+<p>We will write a special class to process the annotation and construct the message to print method in it.  As we made it <code class="language-java">@Repeatable</code>, we need to retrieve container annotation <code class="language-java">@Descriptions</code> first and then iterate over its <code class="language-java">@Description</code> annotations: </p>
+<pre><code class="language-java">public class DescriptionProcessor {
+
+    public void printDescription(Object o) {
+        // Get processing object class
+        Class&lt;?&gt; processingClass = o.getClass();
+        for (Method m : processingClass.getDeclaredMethods()) {
+            // Check if method has container @Descriptions annotation
+            if (m.isAnnotationPresent(Descriptions.class)) {
+                // Get container annotation
+                Descriptions descriptions = m.getAnnotation(Descriptions.class);
+                StringBuilder sb = new StringBuilder();
+                // Iterate over exact @Description annotations
+                for (Description d : descriptions.value()) {
+                    sb.append("Description: ")
+                            .append(d.description())
+                            .append(" Author : " )
+                            .append(d.author())
+                            .append(" Version : ")
+                            .append(d.version())
+                            .append("\n");
+                }
+                // Print result
+                System.out.println(m.getName() + " Descriptions: ");
+                System.out.println(sb.toString());
+            }
+        }
+    }
+}</code></pre>
+<p>Here we used <strong>java reflection </strong>to get the object class's methods. Then we iterate them to find <code class="language-java">@Description</code> annotated methods and create a message to be shown.</p>
+<p>Now it's testing time. Let's create a test method and add an annotated method there: </p>
+<pre><code class="language-java">public class TestClass {
+    @Description(
+            author = "John Doe", 
+            description = "Testing method"
+    )
+    @Description(
+            author = "Richard Roe", 
+            description = "Repeatable description", 
+            version = 1
+    )
+    public void testMethod() {
+        System.out.println("The method to test the @Description annotation");
+    }
+}</code></pre>
+<p>And now we can test it in <code class="language-java">Main</code> method: </p>
+<pre><code class="language-java">public class Main {
+    public static void main(String[] args) {
+        // Creating processor object
+        DescriptionProcessor processor = new DescriptionProcessor();
+        // Creating test object with annotated method
+        TestClass test = new TestClass();
+        // Call processing method
+        processor.printDescription(test);
+    }
+}</code></pre>
+<p>And look at console output: </p>
+<pre><code class="language-java">testMethod Descriptions: 
+Description: Testing method Author : John Doe Version : 0
+Description: Repeatable description Author : Richard Roe Version : 1</code></pre>
+<h5 id="conclusion">Conclusion</h5>
+<p>Here you learned how to define custom annotation in Java:</p>
+<ul><li><p>define annotation retention (<code class="language-java">SOURCE</code>, <code class="language-java">CLASS</code> or <code class="language-java">RUNTIME</code>) or use default one,</p></li><li><p>specify annotation target type or use default one,</p></li><li><p>create a container class if you want it to be <code class="language-java">@Repeatable</code>,</p></li><li><p>decide if the annotation is <code class="language-java">@Documented</code> or <code class="language-java">@Inherited</code>,</p></li><li><p>write processing class using java reflection.</p></li></ul>
+</div>
